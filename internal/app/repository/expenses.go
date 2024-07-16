@@ -18,14 +18,14 @@ func NewExpensesRepo(db *sqlx.DB) *ExpensesRepositoryImpl {
 	}
 }
 
-func (e ExpensesRepositoryImpl) CreateExpense(ctx context.Context, expense ds.Expense) (ds.Expense, error) {
+func (e ExpensesRepositoryImpl) CreateExpense(ctx context.Context, expense ds.Expense) error {
 	expense.ID = uuid.New()
 
 	_, err := e.db.ExecContext(ctx, "INSERT INTO expenses VALUES ($1, $2, $3, $4, $5, $6)", expense.ID, expense.Road, expense.Residence, expense.Food, expense.Entertainment, expense.Other)
 	if err != nil {
-		return ds.Expense{}, fmt.Errorf("[db.ExecContext]: %w", err)
+		return fmt.Errorf("[db.ExecContext]: %w", err)
 	}
-	return expense, nil
+	return nil
 }
 
 func (e ExpensesRepositoryImpl) GetExpense(ctx context.Context, uuid uuid.UUID) (ds.Expense, error) {
@@ -35,4 +35,12 @@ func (e ExpensesRepositoryImpl) GetExpense(ctx context.Context, uuid uuid.UUID) 
 		return ds.Expense{}, fmt.Errorf("[db.ExecContext]: %w", err)
 	}
 	return expense, nil
+}
+
+func (e ExpensesRepositoryImpl) UpdateExpense(ctx context.Context, expense ds.Expense, uuid uuid.UUID) error {
+	_, err := e.db.ExecContext(ctx, "UPDATE expenses SET (road, residence, food, entertainment, other) = ($1, $2, $3, $4, $5) WHERE id = $6", expense.Road, expense.Residence, expense.Food, expense.Entertainment, expense.Other, uuid)
+	if err != nil {
+		return fmt.Errorf("[db.ExecContext]: %w", err)
+	}
+	return nil
 }

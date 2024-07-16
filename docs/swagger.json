@@ -1,0 +1,91 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "A collection of travels and visited places",
+        "title": "LTS (Leo`s Travel Stories)",
+        "contact": {
+            "name": "API Support",
+            "url": "https://vk.com/hopply_time",
+            "email": "ahtambaev.lev@wb.ru"
+        },
+        "license": {
+            "name": "AS IS (NO WARRANTY)"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/travel": {
+            "post": {
+                "description": "Create new travel with description",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Travel"
+                ],
+                "summary": "Create travel",
+                "parameters": [
+                    {
+                        "description": "Create travel",
+                        "name": "travel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travel"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ds.DateOnlyTime": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.Travel": {
+            "type": "object",
+            "properties": {
+                "date_end": {
+                    "$ref": "#/definitions/ds.DateOnlyTime"
+                },
+                "date_start": {
+                    "$ref": "#/definitions/ds.DateOnlyTime"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "preview": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

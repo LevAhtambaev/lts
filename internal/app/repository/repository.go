@@ -12,6 +12,7 @@ type TravelRepository interface {
 }
 
 type ExpensesRepository interface {
-	CreateExpense(ctx context.Context, expense ds.Expense) (ds.Expense, error)
+	CreateExpense(ctx context.Context, expense ds.Expense) error
 	GetExpense(ctx context.Context, uuid uuid.UUID) (ds.Expense, error)
+	UpdateExpense(ctx context.Context, expense ds.Expense, uuid uuid.UUID) error
 }

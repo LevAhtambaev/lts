@@ -15,6 +15,20 @@ var (
 	cfgPath = flag.String("config", "", "path to config file")
 )
 
+// @title LTS (Leo`s Travel Stories)
+// @version 1.0
+// @description A collection of travels and visited places
+
+// @contact.name API Support
+// @contact.url https://vk.com/hopply_time
+// @contact.email ahtambaev.lev@wb.ru
+
+// @license.name AS IS (NO WARRANTY)
+
+// @host localhost:8080
+// @schemes  http https
+// @BasePath /api
+
 func main() {
 	ctx := context.Background()
 

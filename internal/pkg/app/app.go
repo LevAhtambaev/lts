@@ -3,18 +3,20 @@ package app
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
-	"lts/internal/app/middleware"
 	"net/http"
 
+	_ "lts/docs"
 	"lts/internal/app/config"
 	"lts/internal/app/handlers"
+	"lts/internal/app/middleware"
 	"lts/internal/app/repository"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 const (
@@ -64,13 +66,16 @@ func (a *App) StartServer() error {
 
 	r := mux.NewRouter()
 
-	api := r.PathPrefix("/api/").Subrouter()
+	api := r.PathPrefix("/api").Subrouter()
 
 	api.HandleFunc("/travel", travelHandler.CreateTravel).Methods("POST")
 	api.HandleFunc("/travel/{uuid}", travelHandler.SetTravelPreview).Methods("PUT")
 
 	api.HandleFunc("/expenses", expensesHandler.CreateExpense).Methods("POST")
 	api.HandleFunc("/expenses/{uuid}", expensesHandler.GetExpense).Methods("Get")
+	api.HandleFunc("/expenses/{uuid}", expensesHandler.UpdateExpense).Methods("Put")
+
+	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler).Methods("GET")
 
 	router := middleware.LogMiddleware(a.logger, r)
 

@@ -1,0 +1,60 @@
+basePath: /api
+definitions:
+  ds.DateOnlyTime:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  ds.Travel:
+    properties:
+      date_end:
+        $ref: '#/definitions/ds.DateOnlyTime'
+      date_start:
+        $ref: '#/definitions/ds.DateOnlyTime'
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      preview:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: ahtambaev.lev@wb.ru
+    name: API Support
+    url: https://vk.com/hopply_time
+  description: A collection of travels and visited places
+  license:
+    name: AS IS (NO WARRANTY)
+  title: LTS (Leo`s Travel Stories)
+  version: "1.0"
+paths:
+  /travel:
+    post:
+      description: Create new travel with description
+      parameters:
+      - description: Create travel
+        in: body
+        name: travel
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Travel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.Travel'
+        "500":
+          description: Internal Server Error
+      summary: Create travel
+      tags:
+      - Travel
+schemes:
+- http
+- https
+swagger: "2.0"

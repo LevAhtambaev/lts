@@ -25,6 +25,15 @@ func NewTravelHandlerImpl(travelRepo repository.TravelRepository, logger *zap.Su
 	}
 }
 
+// CreateTravel godoc
+// @Summary      Create travel
+// @Description  Create new travel with description
+// @Tags         Travel
+// @Produce      json
+// @Param travel body ds.Travel true "Create travel"
+// @Success      201  {object}  ds.Travel
+// @Failure 	 500
+// @Router       /travel [post]
 func (th *TravelHandlerImpl) CreateTravel(w http.ResponseWriter, r *http.Request) {
 	var travel ds.Travel
 

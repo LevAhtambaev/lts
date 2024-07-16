@@ -10,6 +10,7 @@ build:
 # Запуск сервиса
 .PHONY: run
 run:
+	swag init -g /cmd/lts/main.go
 	go run $(PWD)/cmd/$(SERVICE_NAME) -config ./configs/config.yaml
 
 # Запуск миграций
