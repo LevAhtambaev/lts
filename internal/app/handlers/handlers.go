@@ -7,6 +7,9 @@ type TravelHandler interface {
 	SetTravelPreview(w http.ResponseWriter, r *http.Request)
 }
 
-type ExpenseHandler interface {
+type ExpensesHandler interface {
 	CreateExpense(w http.ResponseWriter, r *http.Request)
+	GetExpense(w http.ResponseWriter, r *http.Request)
+	UpdateExpense(w http.ResponseWriter, r *http.Request)
+	DeleteExpense(w http.ResponseWriter, r *http.Request)
 }

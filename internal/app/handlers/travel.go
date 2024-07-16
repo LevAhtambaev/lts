@@ -13,6 +13,10 @@ import (
 	"os"
 )
 
+type TravelHandlerImplemented struct {
+	TravelHandler
+}
+
 type TravelHandlerImpl struct {
 	TravelRepo repository.TravelRepository
 	Logger     *zap.SugaredLogger

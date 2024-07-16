@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+type ExpensesHandlerImplemented struct {
+	ExpensesHandler
+}
+
 type ExpensesHandlerImpl struct {
 	ExpensesRepo repository.ExpensesRepository
 	Logger       *zap.SugaredLogger
@@ -29,7 +33,7 @@ func (eh ExpensesHandlerImpl) CreateExpense(w http.ResponseWriter, r *http.Reque
 
 	}
 
-	err = eh.ExpensesRepo.CreateExpense(r.Context(), expense)
+	expense, err = eh.ExpensesRepo.CreateExpense(r.Context(), expense)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -92,7 +96,7 @@ func (eh ExpensesHandlerImpl) UpdateExpense(w http.ResponseWriter, r *http.Reque
 
 	}
 
-	err = eh.ExpensesRepo.UpdateExpense(r.Context(), expense, uuidParsed)
+	expense, err = eh.ExpensesRepo.UpdateExpense(r.Context(), expense, uuidParsed)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -104,4 +108,27 @@ func (eh ExpensesHandlerImpl) UpdateExpense(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (eh ExpensesHandlerImpl) DeleteExpense(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuidStr, ok := vars["uuid"]
+	if !ok {
+		eh.Logger.Info("uuid is missing in parameters")
+	}
+
+	uuidParsed, err := uuid.Parse(uuidStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = eh.ExpensesRepo.DeleteExpense(r.Context(), uuidParsed)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }

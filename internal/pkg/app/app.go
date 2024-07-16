@@ -60,20 +60,23 @@ func (a *App) StartServer() error {
 
 	travelRepo := repository.NewTravelRepo(db)
 	travelHandler := handlers.NewTravelHandlerImpl(travelRepo, a.logger)
+	th := handlers.TravelHandlerImplemented{TravelHandler: travelHandler}
 
 	expenseRepo := repository.NewExpensesRepo(db)
 	expensesHandler := handlers.NewExpensesHandlerImpl(expenseRepo, a.logger)
+	eh := handlers.ExpensesHandlerImplemented{ExpensesHandler: expensesHandler}
 
 	r := mux.NewRouter()
 
 	api := r.PathPrefix("/api").Subrouter()
 
-	api.HandleFunc("/travel", travelHandler.CreateTravel).Methods("POST")
-	api.HandleFunc("/travel/{uuid}", travelHandler.SetTravelPreview).Methods("PUT")
+	api.HandleFunc("/travel", th.CreateTravel).Methods("POST")
+	api.HandleFunc("/travel/{uuid}", th.SetTravelPreview).Methods("PUT")
 
-	api.HandleFunc("/expenses", expensesHandler.CreateExpense).Methods("POST")
-	api.HandleFunc("/expenses/{uuid}", expensesHandler.GetExpense).Methods("Get")
-	api.HandleFunc("/expenses/{uuid}", expensesHandler.UpdateExpense).Methods("Put")
+	api.HandleFunc("/expenses", eh.CreateExpense).Methods("POST")
+	api.HandleFunc("/expenses/{uuid}", eh.GetExpense).Methods("GET")
+	api.HandleFunc("/expenses/{uuid}", eh.UpdateExpense).Methods("PUT")
+	api.HandleFunc("/expenses/{uuid}", eh.DeleteExpense).Methods("DELETE")
 
 	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler).Methods("GET")
 
