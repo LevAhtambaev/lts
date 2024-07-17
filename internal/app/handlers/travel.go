@@ -145,9 +145,10 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 		}
 		images := place.Images
 		for i, imagePath := range images {
-			if imagePath == "" {
-				continue
-			}
+			//if imagePath == "" {
+			//	continue
+			//}
+			th.Logger.Info(imagePath)
 			imageData, err := helpers.LoadImage(imagePath)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -155,6 +156,7 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 			}
 			place.Images[i] = imageData
 		}
+		th.Logger.Info(place.Preview)
 		if place.Preview != "" {
 			place.Preview, err = helpers.LoadImage(place.Preview)
 			if err != nil {

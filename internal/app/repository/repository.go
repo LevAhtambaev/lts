@@ -11,6 +11,7 @@ type TravelRepository interface {
 	SetTravelPreview(ctx context.Context, path string, uuid uuid.UUID) error
 	AddPlace(ctx context.Context, travelUUID, placeUUID uuid.UUID) error
 	GetTravel(ctx context.Context, travelUUID uuid.UUID) (ds.Travel, error)
+	UpdateTravel(ctx context.Context, id uuid.UUID, travel ds.Travel) error
 }
 
 type PlaceRepository interface {

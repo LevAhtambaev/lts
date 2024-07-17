@@ -29,6 +29,15 @@ func (t TravelRepositoryImpl) CreateTravel(ctx context.Context, travel ds.Travel
 	return travel, nil
 }
 
+func (t TravelRepositoryImpl) UpdateTravel(ctx context.Context, id uuid.UUID, travel ds.Travel) error {
+	_, err := t.db.ExecContext(ctx, "UPDATE travel SET (name, description, date_start, date_end) = ($1, $2, $3, $4) WHERE id = $4", travel.Name, travel.Description, travel.DateStart.Time, travel.DateEnd.Time, id)
+	if err != nil {
+		return fmt.Errorf("[db.ExecContext]: %w", err)
+	}
+
+	return nil
+}
+
 func (t TravelRepositoryImpl) SetTravelPreview(ctx context.Context, path string, uuid uuid.UUID) error {
 	_, err := t.db.ExecContext(ctx, "UPDATE travel SET preview = $1 WHERE id = $2", path, uuid)
 	if err != nil {
