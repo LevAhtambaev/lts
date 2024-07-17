@@ -17,6 +17,10 @@ definitions:
         type: string
       name:
         type: string
+      places:
+        items:
+          type: string
+        type: array
       preview:
         type: string
     type: object

@@ -7,12 +7,23 @@ import (
 	"time"
 )
 
+type FullTravel struct {
+	ID          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	DateStart   DateOnlyTime `json:"date_start"`
+	DateEnd     DateOnlyTime `json:"date_end"`
+	Places      []Place      `json:"places"`
+	Preview     string       `json:"preview"`
+}
+
 type Travel struct {
 	ID          uuid.UUID    `json:"id"`
 	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	DateStart   DateOnlyTime `json:"date_start"`
 	DateEnd     DateOnlyTime `json:"date_end"`
+	Places      []uuid.UUID  `json:"places"`
 	Preview     string       `json:"preview"`
 }
 

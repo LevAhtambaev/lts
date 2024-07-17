@@ -5,6 +5,15 @@ import "net/http"
 type TravelHandler interface {
 	CreateTravel(w http.ResponseWriter, r *http.Request)
 	SetTravelPreview(w http.ResponseWriter, r *http.Request)
+	GetTravel(w http.ResponseWriter, r *http.Request)
+}
+
+type PlaceHandler interface {
+	CreatePlace(w http.ResponseWriter, r *http.Request)
+	SetPreview(w http.ResponseWriter, r *http.Request)
+	SetImages(w http.ResponseWriter, r *http.Request)
+	DeletePlace(w http.ResponseWriter, r *http.Request)
+	UpdatePlace(w http.ResponseWriter, r *http.Request)
 }
 
 type ExpensesHandler interface {

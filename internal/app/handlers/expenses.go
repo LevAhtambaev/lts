@@ -16,17 +16,30 @@ type ExpensesHandlerImplemented struct {
 
 type ExpensesHandlerImpl struct {
 	ExpensesRepo repository.ExpensesRepository
+	PlaceRepo    repository.PlaceRepository
 	Logger       *zap.SugaredLogger
 }
 
-func NewExpensesHandlerImpl(expensesRepo repository.ExpensesRepository, logger *zap.SugaredLogger) *ExpensesHandlerImpl {
-	return &ExpensesHandlerImpl{ExpensesRepo: expensesRepo, Logger: logger}
+func NewExpensesHandlerImpl(expensesRepo repository.ExpensesRepository, placeRepo repository.PlaceRepository, logger *zap.SugaredLogger) *ExpensesHandlerImpl {
+	return &ExpensesHandlerImpl{ExpensesRepo: expensesRepo, PlaceRepo: placeRepo, Logger: logger}
 }
 
 func (eh ExpensesHandlerImpl) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	var expense ds.Expense
 
-	err := json.NewDecoder(r.Body).Decode(&expense)
+	vars := mux.Vars(r)
+	uuidStr, ok := vars["place_uuid"]
+	if !ok {
+		eh.Logger.Info("uuid is missing in parameters")
+	}
+
+	uuidParsed, err := uuid.Parse(uuidStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&expense)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -34,6 +47,12 @@ func (eh ExpensesHandlerImpl) CreateExpense(w http.ResponseWriter, r *http.Reque
 	}
 
 	expense, err = eh.ExpensesRepo.CreateExpense(r.Context(), expense)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = eh.PlaceRepo.SetExpenses(r.Context(), expense.ID, uuidParsed)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

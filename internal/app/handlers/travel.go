@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"lts/internal/app/ds"
+	"lts/internal/app/helpers"
 	"lts/internal/app/repository"
 	"net/http"
 	"os"
@@ -19,12 +20,14 @@ type TravelHandlerImplemented struct {
 
 type TravelHandlerImpl struct {
 	TravelRepo repository.TravelRepository
+	PlaceRepo  repository.PlaceRepository
 	Logger     *zap.SugaredLogger
 }
 
-func NewTravelHandlerImpl(travelRepo repository.TravelRepository, logger *zap.SugaredLogger) *TravelHandlerImpl {
+func NewTravelHandlerImpl(travelRepo repository.TravelRepository, placeRepo repository.PlaceRepository, logger *zap.SugaredLogger) *TravelHandlerImpl {
 	return &TravelHandlerImpl{
 		TravelRepo: travelRepo,
+		PlaceRepo:  placeRepo,
 		Logger:     logger,
 	}
 }
@@ -60,7 +63,6 @@ func (th *TravelHandlerImpl) CreateTravel(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
 }
 
 func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +77,6 @@ func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	th.Logger.Info(uuidStr)
 
 	err = os.MkdirAll(fmt.Sprintf("./images/travel/%s", uuidStr), os.ModePerm)
 	if err != nil {
@@ -105,4 +106,80 @@ func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Req
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuidStr, ok := vars["uuid"]
+	if !ok {
+		th.Logger.Info("uuid is missing in parameters")
+	}
+
+	UUID, err := uuid.Parse(uuidStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var travel ds.Travel
+
+	travel, err = th.TravelRepo.GetTravel(r.Context(), UUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	travel.Preview, err = helpers.LoadImage(travel.Preview)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var places []ds.Place
+
+	for _, placeUUID := range travel.Places {
+		var place ds.Place
+		place, err = th.PlaceRepo.GetPlace(r.Context(), placeUUID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		images := place.Images
+		for i, imagePath := range images {
+			if imagePath == "" {
+				continue
+			}
+			imageData, err := helpers.LoadImage(imagePath)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			place.Images[i] = imageData
+		}
+		if place.Preview != "" {
+			place.Preview, err = helpers.LoadImage(place.Preview)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		places = append(places, place)
+	}
+
+	fullTravel := ds.FullTravel{
+		ID:          travel.ID,
+		Name:        travel.Name,
+		Description: travel.Description,
+		DateStart:   travel.DateStart,
+		DateEnd:     travel.DateEnd,
+		Places:      places,
+		Preview:     travel.Preview,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(fullTravel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

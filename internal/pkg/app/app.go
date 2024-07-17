@@ -50,7 +50,6 @@ func (a *App) Run() error {
 }
 
 func (a *App) StartServer() error {
-
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", a.cfg.PostgresConfig.Host, a.cfg.PostgresConfig.Port, a.cfg.PostgresConfig.User, a.cfg.PostgresConfig.Password, a.cfg.PostgresConfig.Name, sslMode)
 
 	db, err := sqlx.Connect(postgres, dsn)
@@ -59,11 +58,16 @@ func (a *App) StartServer() error {
 	}
 
 	travelRepo := repository.NewTravelRepo(db)
-	travelHandler := handlers.NewTravelHandlerImpl(travelRepo, a.logger)
+	placeRepo := repository.NewPlaceRepositoryImpl(db)
+	expenseRepo := repository.NewExpensesRepo(db)
+
+	travelHandler := handlers.NewTravelHandlerImpl(travelRepo, placeRepo, a.logger)
 	th := handlers.TravelHandlerImplemented{TravelHandler: travelHandler}
 
-	expenseRepo := repository.NewExpensesRepo(db)
-	expensesHandler := handlers.NewExpensesHandlerImpl(expenseRepo, a.logger)
+	placesHandler := handlers.NewPlaceHandlerImpl(placeRepo, travelRepo, a.logger)
+	ph := handlers.PlaceHandlerImplemented{PlaceHandler: placesHandler}
+
+	expensesHandler := handlers.NewExpensesHandlerImpl(expenseRepo, placeRepo, a.logger)
 	eh := handlers.ExpensesHandlerImplemented{ExpensesHandler: expensesHandler}
 
 	r := mux.NewRouter()
@@ -71,9 +75,16 @@ func (a *App) StartServer() error {
 	api := r.PathPrefix("/api").Subrouter()
 
 	api.HandleFunc("/travel", th.CreateTravel).Methods("POST")
+	api.HandleFunc("/travel/{uuid}", th.GetTravel).Methods("GET")
 	api.HandleFunc("/travel/{uuid}", th.SetTravelPreview).Methods("PUT")
 
-	api.HandleFunc("/expenses", eh.CreateExpense).Methods("POST")
+	api.HandleFunc("/place/{travel_uuid}", ph.CreatePlace).Methods("POST")
+	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.SetPreview).Methods("PUT")
+	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.DeletePlace).Methods("DELETE")
+	api.HandleFunc("/place/images/{travel_uuid}/{place_uuid}", ph.SetImages).Methods("PUT")
+	api.HandleFunc("/place/{uuid}", ph.UpdatePlace).Methods("PUT")
+
+	api.HandleFunc("/expenses/{place_uuid}", eh.CreateExpense).Methods("POST")
 	api.HandleFunc("/expenses/{uuid}", eh.GetExpense).Methods("GET")
 	api.HandleFunc("/expenses/{uuid}", eh.UpdateExpense).Methods("PUT")
 	api.HandleFunc("/expenses/{uuid}", eh.DeleteExpense).Methods("DELETE")

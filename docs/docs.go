@@ -84,6 +84,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "preview": {
                     "type": "string"
                 }
