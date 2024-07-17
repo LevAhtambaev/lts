@@ -22,7 +22,8 @@ const (
 )
 
 var (
-	cfgPath = flag.String("config", "", "path to config file")
+	//cfgPath = flag.String("config", "", "path to config file")
+	cfgPath = "./configs/config.yaml"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 
 	// считали конфиг
 	flag.Parse()
-	cfg, err := config.Read(ctx, *cfgPath)
+	cfg, err := config.Read(ctx, cfgPath)
 	if err != nil {
 		log.Ctx(ctx).Error().Err(err).Msg("[config.Read]")
 

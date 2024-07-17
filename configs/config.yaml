@@ -3,4 +3,4 @@ postgres:
   port: 5432
   user: dev_user
   pass: dev_pass
-  host: localhost
+  host: db

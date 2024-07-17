@@ -96,7 +96,7 @@ func (a *App) StartServer() error {
 	router := middleware.LogMiddleware(a.logger, r)
 
 	log.Println("server started")
-	err = http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8000", router)
 	if err != nil {
 		a.logger.Fatal()
 	}

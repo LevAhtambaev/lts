@@ -1,5 +1,19 @@
 version: "3.8" # версия вашего docker-compose
 services: # имеджи, которые запустятся по вашему желанию
+  lts-app:
+    build: ./
+    command: bash -c "./wait-for-postgres.sh db && ./lts-migrate && ./lts"
+    ports:
+       - "8000:8000"
+    depends_on:
+        - db
+    environment:
+        - DB_PASSWORD=dev_pass
+        - DB_PORT=5432
+        - DB_USER=dev_user
+        - DB_PASS=dev_pass
+        - DB_HOST=db
+        - DB_NAME=dev_db
   db: # название моего имеджа
     restart: always
     image: postgres:12 # скачает image postgres 12 версии

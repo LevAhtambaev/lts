@@ -11,9 +11,9 @@ build:
 .PHONY: run
 run:
 	swag init -g /cmd/lts/main.go
-	go run $(PWD)/cmd/$(SERVICE_NAME) -config ./configs/config.yaml
+	go run $(PWD)/cmd/$(SERVICE_NAME)
 
 # Запуск миграций
 .PHONY: migrate
 migrate:
-	go run $(PWD)/cmd/migrate -config=./configs/config.yaml
+	go run $(PWD)/cmd/migrate
