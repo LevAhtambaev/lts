@@ -6,6 +6,8 @@ type TravelHandler interface {
 	CreateTravel(w http.ResponseWriter, r *http.Request)
 	SetTravelPreview(w http.ResponseWriter, r *http.Request)
 	GetTravel(w http.ResponseWriter, r *http.Request)
+	UpdateTravel(w http.ResponseWriter, r *http.Request)
+	DeleteTravel(w http.ResponseWriter, r *http.Request)
 }
 
 type PlaceHandler interface {

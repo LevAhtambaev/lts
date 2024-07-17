@@ -19,16 +19,18 @@ type TravelHandlerImplemented struct {
 }
 
 type TravelHandlerImpl struct {
-	TravelRepo repository.TravelRepository
-	PlaceRepo  repository.PlaceRepository
-	Logger     *zap.SugaredLogger
+	TravelRepo   repository.TravelRepository
+	PlaceRepo    repository.PlaceRepository
+	ExpensesRepo repository.ExpensesRepository
+	Logger       *zap.SugaredLogger
 }
 
-func NewTravelHandlerImpl(travelRepo repository.TravelRepository, placeRepo repository.PlaceRepository, logger *zap.SugaredLogger) *TravelHandlerImpl {
+func NewTravelHandlerImpl(travelRepo repository.TravelRepository, placeRepo repository.PlaceRepository, expensesRepo repository.ExpensesRepository, logger *zap.SugaredLogger) *TravelHandlerImpl {
 	return &TravelHandlerImpl{
-		TravelRepo: travelRepo,
-		PlaceRepo:  placeRepo,
-		Logger:     logger,
+		TravelRepo:   travelRepo,
+		PlaceRepo:    placeRepo,
+		ExpensesRepo: expensesRepo,
+		Logger:       logger,
 	}
 }
 
@@ -91,7 +93,13 @@ func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}(file)
 
 	_, err = io.Copy(file, r.Body)
 	if err != nil {
@@ -184,4 +192,92 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (th *TravelHandlerImpl) UpdateTravel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuidStr, ok := vars["uuid"]
+	if !ok {
+		th.Logger.Info("uuid is missing in parameters")
+	}
+
+	UUID, err := uuid.Parse(uuidStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var travel ds.Travel
+
+	err = json.NewDecoder(r.Body).Decode(&travel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = th.TravelRepo.UpdateTravel(r.Context(), UUID, travel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (th *TravelHandlerImpl) DeleteTravel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuidStr, ok := vars["uuid"]
+	if !ok {
+		th.Logger.Info("uuid is missing in parameters")
+	}
+
+	UUID, err := uuid.Parse(uuidStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var travel ds.Travel
+
+	travel, err = th.TravelRepo.GetTravel(r.Context(), UUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = th.TravelRepo.DeleteTravel(r.Context(), UUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, placeUUID := range travel.Places {
+		place, err := th.PlaceRepo.GetPlace(r.Context(), placeUUID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = th.ExpensesRepo.DeleteExpense(r.Context(), place.Expenses)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = th.PlaceRepo.DeletePlace(r.Context(), placeUUID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	path := fmt.Sprintf("./images/travel/%s", UUID)
+
+	err = os.RemoveAll(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

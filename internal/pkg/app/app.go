@@ -61,7 +61,7 @@ func (a *App) StartServer() error {
 	placeRepo := repository.NewPlaceRepositoryImpl(db)
 	expenseRepo := repository.NewExpensesRepo(db)
 
-	travelHandler := handlers.NewTravelHandlerImpl(travelRepo, placeRepo, a.logger)
+	travelHandler := handlers.NewTravelHandlerImpl(travelRepo, placeRepo, expenseRepo, a.logger)
 	th := handlers.TravelHandlerImplemented{TravelHandler: travelHandler}
 
 	placesHandler := handlers.NewPlaceHandlerImpl(placeRepo, travelRepo, a.logger)
@@ -76,7 +76,9 @@ func (a *App) StartServer() error {
 
 	api.HandleFunc("/travel", th.CreateTravel).Methods("POST")
 	api.HandleFunc("/travel/{uuid}", th.GetTravel).Methods("GET")
-	api.HandleFunc("/travel/{uuid}", th.SetTravelPreview).Methods("PUT")
+	api.HandleFunc("/travel/preview/{uuid}", th.SetTravelPreview).Methods("PUT")
+	api.HandleFunc("/travel/{uuid}", th.UpdateTravel).Methods("PUT")
+	api.HandleFunc("/travel/{uuid}", th.DeleteTravel).Methods("DELETE")
 
 	api.HandleFunc("/place/{travel_uuid}", ph.CreatePlace).Methods("POST")
 	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.SetPreview).Methods("PUT")

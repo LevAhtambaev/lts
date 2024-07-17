@@ -12,6 +12,7 @@ type TravelRepository interface {
 	AddPlace(ctx context.Context, travelUUID, placeUUID uuid.UUID) error
 	GetTravel(ctx context.Context, travelUUID uuid.UUID) (ds.Travel, error)
 	UpdateTravel(ctx context.Context, id uuid.UUID, travel ds.Travel) error
+	DeleteTravel(ctx context.Context, id uuid.UUID) error
 }
 
 type PlaceRepository interface {
