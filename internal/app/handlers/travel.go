@@ -35,13 +35,15 @@ func NewTravelHandlerImpl(travelRepo repository.TravelRepository, placeRepo repo
 }
 
 // CreateTravel godoc
-// @Summary      Create travel
-// @Description  Create new travel with description
+// @Summary      Create a new travel
+// @Description  Create a new travel entry with provided details
 // @Tags         Travel
+// @Accept       json
 // @Produce      json
-// @Param travel body ds.Travel true "Create travel"
-// @Success      201  {object}  ds.Travel
-// @Failure 	 500
+// @Param        travel body ds.Travel true "Travel details"
+// @Success      201 {object} ds.Travel "Successfully created travel"
+// @Failure      400 "Invalid travel data"
+// @Failure      500 "Internal server error"
 // @Router       /travel [post]
 func (th *TravelHandlerImpl) CreateTravel(w http.ResponseWriter, r *http.Request) {
 	var travel ds.Travel
@@ -67,6 +69,18 @@ func (th *TravelHandlerImpl) CreateTravel(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// SetTravelPreview godoc
+// @Summary      Set a preview for travel
+// @Description  Set a preview picture for travel
+// @Tags         Travel
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        uuid path string true "UUID of the travel"
+// @Param        file formData file true "Preview picture"
+// @Success      200 "Successfully set preview"
+// @Failure      400 "Invalid UUID format"
+// @Failure      500 "Internal server error"
+// @Router       /travel/preview/{uuid} [put]
 func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]
@@ -93,6 +107,7 @@ func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
@@ -116,6 +131,16 @@ func (th *TravelHandlerImpl) SetTravelPreview(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 }
 
+// GetTravel godoc
+// @Summary      Get travel details
+// @Description  Retrieve detailed information about specific travel including places and images
+// @Tags         Travel
+// @Produce      json
+// @Param        uuid path string true "UUID of the travel"
+// @Success      200 {object} ds.FullTravel "Successfully retrieved travel details"
+// @Failure      400 "Invalid UUID format"
+// @Failure      500 "Internal server error"
+// @Router       /travel/{uuid} [get]
 func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]
@@ -136,10 +161,13 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	travel.Preview, err = helpers.LoadImage(travel.Preview)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+
+	if travel.Preview != "" {
+		travel.Preview, err = helpers.LoadImage(travel.Preview)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	var places []ds.Place
@@ -157,12 +185,15 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 			//	continue
 			//}
 			th.Logger.Info(imagePath)
-			imageData, err := helpers.LoadImage(imagePath)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+			if imagePath != "" {
+				imageData, err := helpers.LoadImage(imagePath)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				place.Images[i] = imageData
 			}
-			place.Images[i] = imageData
+
 		}
 		th.Logger.Info(place.Preview)
 		if place.Preview != "" {
@@ -194,6 +225,18 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateTravel godoc
+// @Summary      Update travel details
+// @Description  Update the details of a specific travel
+// @Tags         Travel
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID of the travel"
+// @Param        travel body ds.Travel true "Travel details to update"
+// @Success      200 "Successfully updated travel details"
+// @Failure      400 "Invalid UUID format or invalid travel data"
+// @Failure      500 "Internal server error"
+// @Router       /travel/{uuid} [put]
 func (th *TravelHandlerImpl) UpdateTravel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]
@@ -224,6 +267,16 @@ func (th *TravelHandlerImpl) UpdateTravel(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeleteTravel godoc
+// @Summary      Delete travel
+// @Description  Delete a specific travel and all associated places and expenses
+// @Tags         Travel
+// @Produce      json
+// @Param        uuid path string true "UUID of the travel"
+// @Success      200 "Successfully deleted travel"
+// @Failure      400 "Invalid UUID format"
+// @Failure      500 "Internal server error"
+// @Router       /travel/{uuid} [delete]
 func (th *TravelHandlerImpl) DeleteTravel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]

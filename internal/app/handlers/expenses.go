@@ -24,6 +24,18 @@ func NewExpensesHandlerImpl(expensesRepo repository.ExpensesRepository, placeRep
 	return &ExpensesHandlerImpl{ExpensesRepo: expensesRepo, PlaceRepo: placeRepo, Logger: logger}
 }
 
+// CreateExpense godoc
+// @Summary      Create a new expense
+// @Description  Create a new expense entry for a specific place
+// @Tags         Expenses
+// @Accept       json
+// @Produce      json
+// @Param        place_uuid path string true "UUID of the place"
+// @Param        expense body ds.Expense true "Expense details"
+// @Success      201 {object} ds.Expense "Successfully created expense"
+// @Failure      400 "Invalid place UUID or expense data"
+// @Failure      500 "Internal server error"
+// @Router       /expenses/{place_uuid} [post]
 func (eh ExpensesHandlerImpl) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	var expense ds.Expense
 
@@ -66,6 +78,16 @@ func (eh ExpensesHandlerImpl) CreateExpense(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// GetExpense godoc
+// @Summary      Get expense details
+// @Description  Retrieve details of a specific expense by its UUID
+// @Tags         Expenses
+// @Produce      json
+// @Param        uuid path string true "UUID of the expense"
+// @Success      200 {object} ds.Expense "Successfully retrieved expense details"
+// @Failure      400 "Invalid UUID format"
+// @Failure      500 "Internal server error"
+// @Router       /expenses/{uuid} [get]
 func (eh ExpensesHandlerImpl) GetExpense(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]
@@ -93,6 +115,18 @@ func (eh ExpensesHandlerImpl) GetExpense(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// UpdateExpense godoc
+// @Summary      Update expense details
+// @Description  Update the details of a specific expense by its UUID
+// @Tags         Expenses
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID of the expense"
+// @Param        expense body ds.Expense true "Expense details"
+// @Success      200 {object} ds.Expense "Successfully updated expense details"
+// @Failure      400 "Invalid UUID format or invalid expense data"
+// @Failure      500 "Internal server error"
+// @Router       /expenses/{uuid} [put]
 func (eh ExpensesHandlerImpl) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	var expense ds.Expense
 
@@ -129,6 +163,16 @@ func (eh ExpensesHandlerImpl) UpdateExpense(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// DeleteExpense godoc
+// @Summary      Delete an expense
+// @Description  Delete a specific expense by its UUID
+// @Tags         Expenses
+// @Produce      json
+// @Param        uuid path string true "UUID of the expense"
+// @Success      200 "Successfully deleted expense"
+// @Failure      400 "Invalid UUID format"
+// @Failure      500 "Internal server error"
+// @Router       /expenses/{uuid} [delete]
 func (eh ExpensesHandlerImpl) DeleteExpense(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]

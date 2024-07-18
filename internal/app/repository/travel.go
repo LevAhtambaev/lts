@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -66,17 +67,24 @@ func (t TravelRepositoryImpl) AddPlace(ctx context.Context, travelUUID, placeUUI
 func (t TravelRepositoryImpl) GetTravel(ctx context.Context, travelUUID uuid.UUID) (ds.Travel, error) {
 	var travel ds.Travel
 	var placesBytes []byte
+	var preview sql.NullString
 	err := t.db.QueryRowContext(ctx, "SELECT id, name, description, date_start, date_end, places, preview FROM travel WHERE id = $1", travelUUID).Scan(
-		&travel.ID, &travel.Name, &travel.Description, &travel.DateStart.Time, &travel.DateEnd.Time, &placesBytes, &travel.Preview,
+		&travel.ID, &travel.Name, &travel.Description, &travel.DateStart.Time, &travel.DateEnd.Time, &placesBytes, &preview,
 	)
 	if err != nil {
 		return ds.Travel{}, fmt.Errorf("[db.ExecContext]: %w", err)
 	}
 
+	travel.Preview = preview.String
+
 	var places pq.StringArray
-	err = places.Scan(placesBytes)
-	if err != nil {
-		return ds.Travel{}, fmt.Errorf("ошибка при сканировании places: %w", err)
+	if placesBytes != nil {
+		err = places.Scan(placesBytes)
+		if err != nil {
+			return ds.Travel{}, fmt.Errorf("ошибка при сканировании places: %w", err)
+		}
+	} else {
+		places = pq.StringArray{}
 	}
 
 	travel.Places = make([]uuid.UUID, len(places))

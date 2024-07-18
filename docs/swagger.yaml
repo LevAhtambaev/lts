@@ -5,6 +5,42 @@ definitions:
       time.Time:
         type: string
     type: object
+  ds.Expense:
+    properties:
+      entertainment:
+        type: integer
+      food:
+        type: integer
+      id:
+        type: string
+      other:
+        type: integer
+      residence:
+        type: integer
+      road:
+        type: integer
+    type: object
+  ds.FullTravel:
+    properties:
+      date_end:
+        $ref: '#/definitions/ds.DateOnlyTime'
+      date_start:
+        $ref: '#/definitions/ds.DateOnlyTime'
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      places:
+        items:
+          $ref: '#/definitions/ds.Place'
+        type: array
+      preview:
+        type: string
+    type: object
+  ds.Place:
+    type: object
   ds.Travel:
     properties:
       date_end:
@@ -36,11 +72,269 @@ info:
   title: LTS (Leo`s Travel Stories)
   version: "1.0"
 paths:
+  /expenses/{place_uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new expense entry for a specific place
+      parameters:
+      - description: UUID of the place
+        in: path
+        name: place_uuid
+        required: true
+        type: string
+      - description: Expense details
+        in: body
+        name: expense
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Expense'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created expense
+          schema:
+            $ref: '#/definitions/ds.Expense'
+        "400":
+          description: Invalid place UUID or expense data
+        "500":
+          description: Internal server error
+      summary: Create a new expense
+      tags:
+      - Expenses
+  /expenses/{uuid}:
+    delete:
+      description: Delete a specific expense by its UUID
+      parameters:
+      - description: UUID of the expense
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted expense
+        "400":
+          description: Invalid UUID format
+        "500":
+          description: Internal server error
+      summary: Delete an expense
+      tags:
+      - Expenses
+    get:
+      description: Retrieve details of a specific expense by its UUID
+      parameters:
+      - description: UUID of the expense
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved expense details
+          schema:
+            $ref: '#/definitions/ds.Expense'
+        "400":
+          description: Invalid UUID format
+        "500":
+          description: Internal server error
+      summary: Get expense details
+      tags:
+      - Expenses
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific expense by its UUID
+      parameters:
+      - description: UUID of the expense
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Expense details
+        in: body
+        name: expense
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Expense'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated expense details
+          schema:
+            $ref: '#/definitions/ds.Expense'
+        "400":
+          description: Invalid UUID format or invalid expense data
+        "500":
+          description: Internal server error
+      summary: Update expense details
+      tags:
+      - Expenses
+  /place/{travel_uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new place and associate it with a specific travel
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: travel_uuid
+        required: true
+        type: string
+      - description: Place details
+        in: body
+        name: place
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Place'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created place
+          schema:
+            $ref: '#/definitions/ds.Place'
+        "400":
+          description: Invalid travel UUID or place data
+        "500":
+          description: Internal server error
+      summary: Create a new place
+      tags:
+      - Places
+  /place/{travel_uuid}/{place_uuid}:
+    delete:
+      description: Delete a specific place associated with a travel, including all
+        associated data and images
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: travel_uuid
+        required: true
+        type: string
+      - description: UUID of the place
+        in: path
+        name: place_uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted place
+        "400":
+          description: Invalid travel UUID or place UUID
+        "500":
+          description: Internal server error
+      summary: Delete a place
+      tags:
+      - Places
+    put:
+      consumes:
+      - multipart/form-data
+      description: Set a preview picture for a place
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: travel_uuid
+        required: true
+        type: string
+      - description: UUID of the place
+        in: path
+        name: place_uuid
+        required: true
+        type: string
+      - description: Preview picture
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully set preview
+        "400":
+          description: Invalid travel UUID or place UUID
+        "500":
+          description: Internal server error
+      summary: Set a preview for a place
+      tags:
+      - Places
+  /place/{uuid}:
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific place associated with a travel
+      parameters:
+      - description: UUID of the place
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Place details
+        in: body
+        name: place
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Place'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated place details
+        "400":
+          description: Invalid UUID format or invalid place data
+        "500":
+          description: Internal server error
+      summary: Update place details
+      tags:
+      - Places
+  /place/images/{travel_uuid}/{place_uuid}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Upload images for a specific place associated with a travel
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: travel_uuid
+        required: true
+        type: string
+      - description: UUID of the place
+        in: path
+        name: place_uuid
+        required: true
+        type: string
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully set images
+        "400":
+          description: Invalid travel UUID or place UUID
+        "500":
+          description: Internal server error
+      summary: Set images for a place
+      tags:
+      - Places
   /travel:
     post:
-      description: Create new travel with description
+      consumes:
+      - application/json
+      description: Create a new travel entry with provided details
       parameters:
-      - description: Create travel
+      - description: Travel details
         in: body
         name: travel
         required: true
@@ -50,12 +344,114 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Successfully created travel
           schema:
             $ref: '#/definitions/ds.Travel'
+        "400":
+          description: Invalid travel data
         "500":
-          description: Internal Server Error
-      summary: Create travel
+          description: Internal server error
+      summary: Create a new travel
+      tags:
+      - Travel
+  /travel/{uuid}:
+    delete:
+      description: Delete a specific travel and all associated places and expenses
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted travel
+        "400":
+          description: Invalid UUID format
+        "500":
+          description: Internal server error
+      summary: Delete travel
+      tags:
+      - Travel
+    get:
+      description: Retrieve detailed information about specific travel including places
+        and images
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved travel details
+          schema:
+            $ref: '#/definitions/ds.FullTravel'
+        "400":
+          description: Invalid UUID format
+        "500":
+          description: Internal server error
+      summary: Get travel details
+      tags:
+      - Travel
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific travel
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Travel details to update
+        in: body
+        name: travel
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Travel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated travel details
+        "400":
+          description: Invalid UUID format or invalid travel data
+        "500":
+          description: Internal server error
+      summary: Update travel details
+      tags:
+      - Travel
+  /travel/preview/{uuid}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Set a preview picture for travel
+      parameters:
+      - description: UUID of the travel
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Preview picture
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully set preview
+        "400":
+          description: Invalid UUID format
+        "500":
+          description: Internal server error
+      summary: Set a preview for travel
       tags:
       - Travel
 schemes:

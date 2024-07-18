@@ -14,3 +14,15 @@ make run
 docker compose build
 docker compose up
 ```
+
+## Спецификация Swagger
+
+Спецификация Swagger доступна в файле `swagger.json`, который можно скачать или просмотреть по следующей ссылке:
+
+[Спецификация Swagger](docs/swagger.json)
+
+## Диаграмма ER
+
+Представлена диаграмма ER:
+
+![Диаграмма ER](assets/DB.png)

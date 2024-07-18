@@ -27,6 +27,18 @@ func NewPlaceHandlerImpl(placeRepo repository.PlaceRepository, travelRepo reposi
 	return &PlaceHandlerImpl{PlaceRepo: placeRepo, TravelRepo: travelRepo, Logger: logger}
 }
 
+// CreatePlace godoc
+// @Summary      Create a new place
+// @Description  Create a new place and associate it with a specific travel
+// @Tags         Places
+// @Accept       json
+// @Produce      json
+// @Param        travel_uuid path string true "UUID of the travel"
+// @Param        place body ds.Place true "Place details"
+// @Success      201 {object} ds.Place "Successfully created place"
+// @Failure      400 "Invalid travel UUID or place data"
+// @Failure      500 "Internal server error"
+// @Router       /place/{travel_uuid} [post]
 func (ph PlaceHandlerImpl) CreatePlace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	travelStr, ok := vars["travel_uuid"]
@@ -69,6 +81,19 @@ func (ph PlaceHandlerImpl) CreatePlace(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SetPreview godoc
+// @Summary      Set a preview for a place
+// @Description  Set a preview picture for a place
+// @Tags         Places
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        travel_uuid path string true "UUID of the travel"
+// @Param        place_uuid path string true "UUID of the place"
+// @Param        file formData file true "Preview picture"
+// @Success      200 "Successfully set preview"
+// @Failure      400 "Invalid travel UUID or place UUID"
+// @Failure      500 "Internal server error"
+// @Router       /place/{travel_uuid}/{place_uuid} [put]
 func (ph PlaceHandlerImpl) SetPreview(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	travelStr, ok := vars["travel_uuid"]
@@ -124,6 +149,19 @@ func (ph PlaceHandlerImpl) SetPreview(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// SetImages godoc
+// @Summary      Set images for a place
+// @Description  Upload images for a specific place associated with a travel
+// @Tags         Places
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        travel_uuid path string true "UUID of the travel"
+// @Param        place_uuid path string true "UUID of the place"
+// @Param        image formData file true "Image file"
+// @Success      200 "Successfully set images"
+// @Failure      400 "Invalid travel UUID or place UUID"
+// @Failure      500 "Internal server error"
+// @Router       /place/images/{travel_uuid}/{place_uuid} [put]
 func (ph PlaceHandlerImpl) SetImages(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	travelStr, ok := vars["travel_uuid"]
@@ -210,6 +248,17 @@ func (ph PlaceHandlerImpl) SetImages(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeletePlace godoc
+// @Summary      Delete a place
+// @Description  Delete a specific place associated with a travel, including all associated data and images
+// @Tags         Places
+// @Produce      json
+// @Param        travel_uuid path string true "UUID of the travel"
+// @Param        place_uuid path string true "UUID of the place"
+// @Success      200 "Successfully deleted place"
+// @Failure      400 "Invalid travel UUID or place UUID"
+// @Failure      500 "Internal server error"
+// @Router       /place/{travel_uuid}/{place_uuid} [delete]
 func (ph PlaceHandlerImpl) DeletePlace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	travelStr, ok := vars["travel_uuid"]
@@ -251,6 +300,18 @@ func (ph PlaceHandlerImpl) DeletePlace(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// UpdatePlace godoc
+// @Summary      Update place details
+// @Description  Update the details of a specific place associated with a travel
+// @Tags         Places
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID of the place"
+// @Param        place body ds.Place true "Place details"
+// @Success      200 "Successfully updated place details"
+// @Failure      400 "Invalid UUID format or invalid place data"
+// @Failure      500 "Internal server error"
+// @Router       /place/{uuid} [put]
 func (ph PlaceHandlerImpl) UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuidStr, ok := vars["uuid"]

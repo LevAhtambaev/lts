@@ -20,19 +20,405 @@
     "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
+        "/expenses/{place_uuid}": {
+            "post": {
+                "description": "Create a new expense entry for a specific place",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Create a new expense",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the place",
+                        "name": "place_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Expense details",
+                        "name": "expense",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Expense"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created expense",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Expense"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid place UUID or expense data"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/expenses/{uuid}": {
+            "get": {
+                "description": "Retrieve details of a specific expense by its UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Get expense details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the expense",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved expense details",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Expense"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the details of a specific expense by its UUID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Update expense details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the expense",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Expense details",
+                        "name": "expense",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Expense"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated expense details",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Expense"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format or invalid expense data"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific expense by its UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Delete an expense",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the expense",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted expense"
+                    },
+                    "400": {
+                        "description": "Invalid UUID format"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/place/images/{travel_uuid}/{place_uuid}": {
+            "put": {
+                "description": "Upload images for a specific place associated with a travel",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Set images for a place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "travel_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of the place",
+                        "name": "place_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully set images"
+                    },
+                    "400": {
+                        "description": "Invalid travel UUID or place UUID"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/place/{travel_uuid}": {
+            "post": {
+                "description": "Create a new place and associate it with a specific travel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Create a new place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "travel_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Place details",
+                        "name": "place",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Place"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created place",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Place"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid travel UUID or place data"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/place/{travel_uuid}/{place_uuid}": {
+            "put": {
+                "description": "Set a preview picture for a place",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Set a preview for a place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "travel_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of the place",
+                        "name": "place_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Preview picture",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully set preview"
+                    },
+                    "400": {
+                        "description": "Invalid travel UUID or place UUID"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific place associated with a travel, including all associated data and images",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Delete a place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "travel_uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of the place",
+                        "name": "place_uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted place"
+                    },
+                    "400": {
+                        "description": "Invalid travel UUID or place UUID"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/place/{uuid}": {
+            "put": {
+                "description": "Update the details of a specific place associated with a travel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Places"
+                ],
+                "summary": "Update place details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the place",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Place details",
+                        "name": "place",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Place"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated place details"
+                    },
+                    "400": {
+                        "description": "Invalid UUID format or invalid place data"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/travel": {
             "post": {
-                "description": "Create new travel with description",
+                "description": "Create a new travel entry with provided details",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Travel"
                 ],
-                "summary": "Create travel",
+                "summary": "Create a new travel",
                 "parameters": [
                     {
-                        "description": "Create travel",
+                        "description": "Travel details",
                         "name": "travel",
                         "in": "body",
                         "required": true,
@@ -43,13 +429,165 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created travel",
                         "schema": {
                             "$ref": "#/definitions/ds.Travel"
                         }
                     },
+                    "400": {
+                        "description": "Invalid travel data"
+                    },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/travel/preview/{uuid}": {
+            "put": {
+                "description": "Set a preview picture for travel",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Travel"
+                ],
+                "summary": "Set a preview for travel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Preview picture",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully set preview"
+                    },
+                    "400": {
+                        "description": "Invalid UUID format"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/travel/{uuid}": {
+            "get": {
+                "description": "Retrieve detailed information about specific travel including places and images",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Travel"
+                ],
+                "summary": "Get travel details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved travel details",
+                        "schema": {
+                            "$ref": "#/definitions/ds.FullTravel"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the details of a specific travel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Travel"
+                ],
+                "summary": "Update travel details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Travel details to update",
+                        "name": "travel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.Travel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated travel details"
+                    },
+                    "400": {
+                        "description": "Invalid UUID format or invalid travel data"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific travel and all associated places and expenses",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Travel"
+                ],
+                "summary": "Delete travel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID of the travel",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted travel"
+                    },
+                    "400": {
+                        "description": "Invalid UUID format"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -63,6 +601,61 @@
                     "type": "string"
                 }
             }
+        },
+        "ds.Expense": {
+            "type": "object",
+            "properties": {
+                "entertainment": {
+                    "type": "integer"
+                },
+                "food": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "other": {
+                    "type": "integer"
+                },
+                "residence": {
+                    "type": "integer"
+                },
+                "road": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.FullTravel": {
+            "type": "object",
+            "properties": {
+                "date_end": {
+                    "$ref": "#/definitions/ds.DateOnlyTime"
+                },
+                "date_start": {
+                    "$ref": "#/definitions/ds.DateOnlyTime"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Place"
+                    }
+                },
+                "preview": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.Place": {
+            "type": "object"
         },
         "ds.Travel": {
             "type": "object",
