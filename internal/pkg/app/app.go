@@ -71,10 +71,11 @@ func (a *App) StartServer() error {
 	eh := handlers.ExpensesHandlerImplemented{ExpensesHandler: expensesHandler}
 
 	r := mux.NewRouter()
+	r.Use(middleware.CORSMiddleware)
 
 	api := r.PathPrefix("/api").Subrouter()
 
-	api.HandleFunc("/travel", th.CreateTravel).Methods("POST")
+	api.HandleFunc("/travel", th.CreateTravel).Methods("POST", "OPTIONS")
 	api.HandleFunc("/travel/{uuid}", th.GetTravel).Methods("GET")
 	api.HandleFunc("/travel/preview/{uuid}", th.SetTravelPreview).Methods("PUT")
 	api.HandleFunc("/travel/{uuid}", th.UpdateTravel).Methods("PUT")

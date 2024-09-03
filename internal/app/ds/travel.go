@@ -2,7 +2,6 @@ package ds
 
 import (
 	"github.com/google/uuid"
-	"log"
 	"strings"
 	"time"
 )
@@ -32,7 +31,6 @@ type DateOnlyTime struct {
 }
 
 func (t *DateOnlyTime) UnmarshalJSON(b []byte) (err error) {
-	log.Print(string(b))
 	date, err := time.Parse(time.DateOnly, strings.Replace(string(b), "\"", "", -1))
 	if err != nil {
 		return err

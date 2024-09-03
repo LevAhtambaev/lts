@@ -3,6 +3,7 @@
 
 set -e
 
+# host = "$1" и shift по идее не используются
 host="$1"
 shift
 cmd="$@"
