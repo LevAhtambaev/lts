@@ -76,23 +76,23 @@ func (a *App) StartServer() error {
 	api := r.PathPrefix("/api").Subrouter()
 
 	api.HandleFunc("/travel", th.CreateTravel).Methods("POST", "OPTIONS")
-	api.HandleFunc("/travel/{uuid}", th.GetTravel).Methods("GET")
-	api.HandleFunc("/travel/preview/{uuid}", th.SetTravelPreview).Methods("PUT")
-	api.HandleFunc("/travel/{uuid}", th.UpdateTravel).Methods("PUT")
-	api.HandleFunc("/travel/{uuid}", th.DeleteTravel).Methods("DELETE")
+	api.HandleFunc("/travel/{uuid}", th.GetTravel).Methods("GET", "OPTIONS")
+	api.HandleFunc("/travel/preview/{uuid}", th.SetTravelPreview).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/travel/{uuid}", th.UpdateTravel).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/travel/{uuid}", th.DeleteTravel).Methods("DELETE", "OPTIONS")
 
-	api.HandleFunc("/place/{travel_uuid}", ph.CreatePlace).Methods("POST")
-	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.SetPreview).Methods("PUT")
-	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.DeletePlace).Methods("DELETE")
-	api.HandleFunc("/place/images/{travel_uuid}/{place_uuid}", ph.SetImages).Methods("PUT")
-	api.HandleFunc("/place/{uuid}", ph.UpdatePlace).Methods("PUT")
+	api.HandleFunc("/place/{travel_uuid}", ph.CreatePlace).Methods("POST", "OPTIONS")
+	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.SetPreview).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.DeletePlace).Methods("DELETE", "OPTIONS")
+	api.HandleFunc("/place/images/{travel_uuid}/{place_uuid}", ph.SetImages).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/place/{uuid}", ph.UpdatePlace).Methods("PUT", "OPTIONS")
 
-	api.HandleFunc("/expenses/{place_uuid}", eh.CreateExpense).Methods("POST")
-	api.HandleFunc("/expenses/{uuid}", eh.GetExpense).Methods("GET")
-	api.HandleFunc("/expenses/{uuid}", eh.UpdateExpense).Methods("PUT")
-	api.HandleFunc("/expenses/{uuid}", eh.DeleteExpense).Methods("DELETE")
+	api.HandleFunc("/expenses/{place_uuid}", eh.CreateExpense).Methods("POST", "OPTIONS")
+	api.HandleFunc("/expenses/{uuid}", eh.GetExpense).Methods("GET", "OPTIONS")
+	api.HandleFunc("/expenses/{uuid}", eh.UpdateExpense).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/expenses/{uuid}", eh.DeleteExpense).Methods("DELETE", "OPTIONS")
 
-	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler).Methods("GET")
+	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler).Methods("GET", "OPTIONS")
 
 	router := middleware.LogMiddleware(a.logger, r)
 

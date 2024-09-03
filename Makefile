@@ -10,10 +10,14 @@ build:
 # Запуск сервиса
 .PHONY: run
 run:
-	swag init -g /cmd/lts/main.go
 	go run $(PWD)/cmd/$(SERVICE_NAME)
 
 # Запуск миграций
 .PHONY: migrate
 migrate:
 	go run $(PWD)/cmd/migrate
+
+# Генерация сваггера
+.PHONY: swagger
+swagger:
+	swag init -g /cmd/lts/main.go

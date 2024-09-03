@@ -170,7 +170,7 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var places []ds.Place
+	var places []ds.FullPlace
 
 	for _, placeUUID := range travel.Places {
 		var place ds.Place
@@ -204,7 +204,23 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		places = append(places, place)
+		expense, err := th.ExpensesRepo.GetExpense(r.Context(), place.Expenses)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fullPlace := ds.FullPlace{
+			ID:       place.ID,
+			Name:     place.Name,
+			Story:    place.Story,
+			Date:     place.Date,
+			Images:   place.Images,
+			Expenses: expense,
+			Preview:  place.Preview,
+		}
+
+		places = append(places, fullPlace)
 	}
 
 	fullTravel := ds.FullTravel{

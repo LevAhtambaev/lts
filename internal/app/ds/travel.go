@@ -12,7 +12,7 @@ type FullTravel struct {
 	Description string       `json:"description"`
 	DateStart   DateOnlyTime `json:"date_start"`
 	DateEnd     DateOnlyTime `json:"date_end"`
-	Places      []Place      `json:"places"`
+	Places      []FullPlace  `json:"places"`
 	Preview     string       `json:"preview"`
 }
 
