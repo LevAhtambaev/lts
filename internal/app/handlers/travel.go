@@ -204,20 +204,28 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		expense, err := th.ExpensesRepo.GetExpense(r.Context(), place.Expenses)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		var expense ds.Expense
+
+		if place.Expenses != uuid.Nil {
+			expense, err = th.ExpensesRepo.GetExpense(r.Context(), place.Expenses)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		fullPlace := ds.FullPlace{
-			ID:       place.ID,
-			Name:     place.Name,
-			Story:    place.Story,
-			Date:     place.Date,
-			Images:   place.Images,
-			Expenses: expense,
-			Preview:  place.Preview,
+			ID:      place.ID,
+			Name:    place.Name,
+			Story:   place.Story,
+			Date:    place.Date,
+			Images:  place.Images,
+			Preview: place.Preview,
+		}
+
+		// Записываем expense в Expenses только если place.Expenses не nil
+		if place.Expenses != uuid.Nil {
+			fullPlace.Expenses = expense
 		}
 
 		places = append(places, fullPlace)
