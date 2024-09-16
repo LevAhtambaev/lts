@@ -99,3 +99,25 @@ func (t TravelRepositoryImpl) GetTravel(ctx context.Context, travelUUID uuid.UUI
 
 	return travel, nil
 }
+
+func (t TravelRepositoryImpl) GetAllTravels(ctx context.Context) ([]ds.TravelCard, error) {
+	var travels []ds.TravelCard
+	rows, err := t.db.Query("SELECT id, name, date_start, date_end, preview FROM travel")
+	if err != nil {
+		return travels, fmt.Errorf("[db.Query]: %w", err)
+	}
+
+	for rows.Next() {
+		var travel ds.TravelCard
+		var preview sql.NullString
+
+		if err := rows.Scan(&travel.ID, &travel.Name, &travel.DateStart.Time, &travel.DateEnd.Time, &preview); err != nil {
+			return travels, fmt.Errorf("[rows.Scan]: %w", err)
+		}
+		travel.Preview = preview.String
+
+		travels = append(travels, travel)
+	}
+
+	return travels, nil
+}

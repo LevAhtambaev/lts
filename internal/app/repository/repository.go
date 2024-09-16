@@ -13,6 +13,7 @@ type TravelRepository interface {
 	GetTravel(ctx context.Context, travelUUID uuid.UUID) (ds.Travel, error)
 	UpdateTravel(ctx context.Context, id uuid.UUID, travel ds.Travel) error
 	DeleteTravel(ctx context.Context, id uuid.UUID) error
+	GetAllTravels(ctx context.Context) ([]ds.TravelCard, error)
 }
 
 type PlaceRepository interface {

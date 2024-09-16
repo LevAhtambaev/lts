@@ -11,7 +11,7 @@ type FullPlace struct {
 	Story    string         `json:"story"`
 	Date     DateOnlyTime   `json:"date"`
 	Images   pq.StringArray `json:"images"`
-	Expenses Expense        `json:"expenses"`
+	Expenses *Expense       `json:"expenses"`
 	Preview  string         `json:"preview"`
 }
 

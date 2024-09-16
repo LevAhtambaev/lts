@@ -225,7 +225,7 @@ func (th *TravelHandlerImpl) GetTravel(w http.ResponseWriter, r *http.Request) {
 
 		// Записываем expense в Expenses только если place.Expenses не nil
 		if place.Expenses != uuid.Nil {
-			fullPlace.Expenses = expense
+			fullPlace.Expenses = &expense
 		}
 
 		places = append(places, fullPlace)
@@ -335,10 +335,12 @@ func (th *TravelHandlerImpl) DeleteTravel(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		err = th.ExpensesRepo.DeleteExpense(r.Context(), place.Expenses)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		if place.Expenses != uuid.Nil {
+			err = th.ExpensesRepo.DeleteExpense(r.Context(), place.Expenses)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		err = th.PlaceRepo.DeletePlace(r.Context(), placeUUID)
@@ -357,4 +359,31 @@ func (th *TravelHandlerImpl) DeleteTravel(w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (th *TravelHandlerImpl) GetAllTravels(w http.ResponseWriter, r *http.Request) {
+	travels, err := th.TravelRepo.GetAllTravels(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for i := range travels {
+		t := &travels[i] // получаем указатель на объект
+		if t.Preview != "" {
+			t.Preview, err = helpers.LoadImage(t.Preview)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(travels)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

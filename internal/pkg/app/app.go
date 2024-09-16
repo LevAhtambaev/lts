@@ -80,6 +80,7 @@ func (a *App) StartServer() error {
 	api.HandleFunc("/travel/preview/{uuid}", th.SetTravelPreview).Methods("PUT", "OPTIONS")
 	api.HandleFunc("/travel/{uuid}", th.UpdateTravel).Methods("PUT", "OPTIONS")
 	api.HandleFunc("/travel/{uuid}", th.DeleteTravel).Methods("DELETE", "OPTIONS")
+	api.HandleFunc("/travel", th.GetAllTravels).Methods("GET", "OPTIONS")
 
 	api.HandleFunc("/place/{travel_uuid}", ph.CreatePlace).Methods("POST", "OPTIONS")
 	api.HandleFunc("/place/{travel_uuid}/{place_uuid}", ph.SetPreview).Methods("PUT", "OPTIONS")

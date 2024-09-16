@@ -26,6 +26,14 @@ type Travel struct {
 	Preview     string       `json:"preview"`
 }
 
+type TravelCard struct {
+	ID        uuid.UUID    `json:"id"`
+	Name      string       `json:"name"`
+	DateStart DateOnlyTime `json:"date_start"`
+	DateEnd   DateOnlyTime `json:"date_end"`
+	Preview   string       `json:"preview"`
+}
+
 type DateOnlyTime struct {
 	time.Time
 }
